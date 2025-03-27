@@ -15,6 +15,11 @@ Route::get('/', function () {
 
 // Route pour le tableau de bord
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::get('/employe', [DashboardController::class, 'employe'])->name('employe')->middleware('auth');
+Route::get('technicien', [DashboardController::class, 'technicien'])->name('technicien')->middleware('auth');
+Route::get('/administrateur', [DashboardController::class, 'administrateur'])->name('administrateur')->middleware('auth');
+
+
 
 // Groupement des routes pour les tickets (avec middleware auth pour les actions sécurisées)
 Route::prefix('tickets')->middleware('auth')->group(function () {
@@ -24,6 +29,7 @@ Route::prefix('tickets')->middleware('auth')->group(function () {
     Route::put('/{id}', [TicketController::class, 'update']); // Mettre à jour un ticket
     Route::delete('/{id}', [TicketController::class, 'destroy']); // Supprimer un ticket
     Route::post('/tickets', [TicketController::class, 'store']);
+    Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
 
 
 

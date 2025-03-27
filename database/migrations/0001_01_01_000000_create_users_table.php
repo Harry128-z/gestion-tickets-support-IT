@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nom'); // Nom de l'utilisateur
             $table->string('email')->unique(); // Adresse e-mail unique
             $table->string('mot_de_passe'); // Mot de passe haché
-            $table->enum('role', ['Employé', 'Technicien', 'Admin']); // Rôle de l'utilisateur
+            $table->enum('role', ['employe', 'technicien', 'administrateur'])->default('employe'); // Rôle de l'utilisateur
             $table->timestamp('date_inscription')->useCurrent(); // Date d'enregistrement
             $table->timestamps();
         });

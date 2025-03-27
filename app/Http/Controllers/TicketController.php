@@ -20,24 +20,14 @@ class TicketController extends Controller
         // Validation des données
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'statut' => 'required|string|max:50',
-            'priorité' => 'required|string|max:50',
-            'id_employe' => 'nullable|integer',
-            'id_technicien' => 'nullable|integer',
+            'description' => 'required|string',
+            'statut' => 'required|in:Ouvert,En cours,Résolu,Fermé',
+            'priorité' => 'required|in:Faible,Moyenne,Élevée,Critique',
+            'id_employe' => 'required|integer|exists:users,id',
+            'id_technicien' => 'nullable|integer|exists:users,id',
         ]);
     
-        // Création du ticket
-        Ticket::create([
-            'titre' => $validated['titre'],
-            'description' => $validated['description'],
-            'statut' => 'statut',
-            'priorité' => $validated['priorité'],
-            'id_employe' => $validated['id_employe'] ?? null,
-            'id_technicien' => $validated['id_technicien'] ?? null
-        ]);
-
-        Ticket::create($validated);
+            Ticket::create($validated);
         // Message de confirmation et redirection
         return redirect()->back()->with('status', 'Le ticket a été créé avec succès !');
     }

@@ -18,9 +18,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nom',
         'email',
         'mot_de_passe',
+        'role', // Ajout du champ "role" pour différencier les types d'utilisateurs
     ];
 
     /**
@@ -34,7 +35,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
      * @return array<string, string>
      */
@@ -45,17 +46,41 @@ class User extends Authenticatable
             'mot_de_passe' => 'hashed',
         ];
     }
+
+    /**
+     * Relation : Utilisateur (employé) -> Tickets qu'il a créés.
+     */
     public function ticketsCrees()
     {
         return $this->hasMany(Ticket::class, 'id_employe');
     }
 
+    /**
+     * Relation : Technicien -> Tickets qui lui sont assignés.
+     */
     public function ticketsAssignes()
     {
         return $this->hasMany(Ticket::class, 'id_technicien');
     }
+
+    /**
+     * Méthode pour récupérer le mot de passe.
+     */
     public function getAuthPassword()
     {
-    return $this->mot_de_passe;
+        return $this->mot_de_passe;
+    }
+
+    /**
+     * Vérifie si l'utilisateur a un rôle spécifique.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+       
+        return $this->role === $role;
     }
 }
+
