@@ -1,4 +1,20 @@
 <x-app-layout>
+
+    @if (session('status'))
+    <div class="bg-green-100 text-green-700 p-4 rounded mb-4">
+        {{ session('status') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Tableau de Bord - Technicien') }}
@@ -29,10 +45,19 @@
                                 <form action="{{ url('/tickets/'.$ticket->id.'/update') }}" method="POST">
                                     @csrf
                                     @method('PUT')
-                                    <select name="statut" required>
-                                        <option value="En cours">En cours</option>
-                                        <option value="Résolu">Résolu</option>
+                            
+                                    <!-- Champ pour le statut -->
+                                    <select name="statut" required class="mb-2 block w-full rounded-md shadow-sm">
+                                        <option value="En cours" {{ $ticket->statut == 'En cours' ? 'selected' : '' }}>En cours</option>
+                                        <option value="Résolu" {{ $ticket->statut == 'Résolu' ? 'selected' : '' }}>Résolu</option>
+                                        <option value="Fermé" {{ $ticket->statut == 'Fermé' ? 'selected' : '' }}>Fermé</option>
                                     </select>
+                            
+                                    <!-- Champ pour les actions effectuées -->
+                                    <textarea name="actions" rows="3" placeholder="Décrivez les actions effectuées"
+                                              class="block w-full rounded-md shadow-sm mb-2"></textarea>
+                            
+                                    <!-- Bouton de mise à jour -->
                                     <button type="submit" style="background-color: #007BFF; color: white; padding: 8px 15px; font-size: 14px; border-radius: 5px;">
                                         Mettre à jour
                                     </button>

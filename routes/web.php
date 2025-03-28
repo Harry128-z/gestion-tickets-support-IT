@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Ticket;
+use App\Http\Controllers\UserController;
 
 // Route de la page d'accueil
 Route::get('/', function () {
@@ -18,18 +19,22 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::get('/employe', [DashboardController::class, 'employe'])->name('employe')->middleware('auth');
 Route::get('technicien', [DashboardController::class, 'technicien'])->name('technicien')->middleware('auth');
 Route::get('/administrateur', [DashboardController::class, 'administrateur'])->name('administrateur')->middleware('auth');
+Route::get('/technicien/tickets', [TicketController::class, 'ticketsTechnicien'])->name('technicien.tickets');
+Route::put('/tickets/{id}/update', [TicketController::class, 'update'])->name('tickets.update');
 
 
 
 // Groupement des routes pour les tickets (avec middleware auth pour les actions sécurisées)
 Route::prefix('tickets')->middleware('auth')->group(function () {
     Route::get('/', [TicketController::class, 'index']); // Liste des tickets
-    Route::get('/{id}', [TicketController::class, 'show']); // Voir un ticket spécifique
-    Route::post('/', [TicketController::class, 'store']); // Créer un nouveau ticket
     Route::put('/{id}', [TicketController::class, 'update']); // Mettre à jour un ticket
-    Route::delete('/{id}', [TicketController::class, 'destroy']); // Supprimer un ticket
-    Route::post('/tickets', [TicketController::class, 'store']);
+    Route::post('/tickets/create', [TicketController::class, 'store'])->name('tickets.create')->middleware('auth');
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
+    Route::post('/tickets/{id}/assign', [TicketController::class, 'assignTechnician'])->name('tickets.assign');
+    Route::delete('/users/{id}/delete', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/create', [UserController::class, 'store'])->name('users.create');
+
+
 
 
 

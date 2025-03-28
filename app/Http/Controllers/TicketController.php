@@ -14,11 +14,10 @@ class TicketController extends Controller
         $tickets = Ticket::all();
         return response()->json($tickets);
     }
-
+    
     public function store(Request $request)
     {
-        // Validation des données
-        $validated = $request->validate([
+        $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
             'statut' => 'required|in:Ouvert,En cours,Résolu,Fermé',
@@ -27,11 +26,16 @@ class TicketController extends Controller
             'id_technicien' => 'nullable|integer|exists:users,id',
         ]);
     
-            Ticket::create($validated);
-        // Message de confirmation et redirection
-        return redirect()->back()->with('status', 'Le ticket a été créé avec succès !');
-    }
+        Ticket::create([
+            'titre' => $request->titre,
+            'description' => $request->description,
+            'priorité' => $request->priorité,
+            'statut' => $request->statut,
+            'id_employe' => auth()->user()->id,
+        ]);
     
+        return redirect()->route('administrateur')->with('status', 'Le ticket a été créé avec succès!');
+    }
 
     public function show($id)
     {
@@ -44,27 +48,31 @@ class TicketController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validation des données
         $request->validate([
-            'title' => 'nullable|string|max:255',
-            'status' => 'nullable|string|max:255',
+            'statut' => 'required|in:En cours,Résolu,Fermé',
+            'actions' => 'nullable|string|max:1000', // Validation pour les actions
         ]);
-
-        // Recherche du ticket
+    
         $ticket = Ticket::find($id);
-        if (!$ticket) {
-            return response()->json(['message' => 'Ticket not found'], 404);
+    
+        if (!$ticket || $ticket->id_technicien != auth()->user()->id) {
+            return redirect()->back()->withErrors(['error' => 'Ticket introuvable ou non assigné à vous.']);
         }
-
-        // Mise à jour du ticket
+    
+        // Ajouter les actions effectuées à la description existante
+        $newDescription = $ticket->description;
+        if ($request->actions) {
+            $newDescription .= "\n\nAction effectuée par le technicien (" . now()->format('d/m/Y H:i') . "):\n" . $request->actions;
+        }
+    
+        // Mettre à jour le statut et la description du ticket
         $ticket->update([
-            'title' => $request->title ?? $ticket->title,
-            'status' => $request->status ?? $ticket->status,
+            'statut' => $request->statut,
+            'description' => $newDescription, // Mise à jour de la description avec les actions
         ]);
-
-        return response()->json($ticket);
+    
+        return redirect()->back()->with('status', 'Le statut du ticket a été mis à jour avec succès.');
     }
-
     public function destroy($id)
     {
         $ticket = Ticket::find($id);
@@ -85,6 +93,36 @@ class TicketController extends Controller
         }
         return response()->json($ticket->commentaires);
     }
+
+
+    public function ticketsTechnicien()
+    {
+        $tickets = Ticket::where('id_technicien', auth()->user()->id)
+                     ->whereIn('statut', ['Ouvert', 'En cours'])
+                     ->get();
+
+        return view('technicien', compact('tickets'));
+    }
+
+    
+    public function assignTechnician(Request $request, $id)
+    {
+        \Log::info('AssignTechnician appelé avec ID : ' . $id);
+
+        $request->validate([
+            'id_technicien' => 'required|exists:users,id',
+        ]);
+
+        $ticket = Ticket::findOrFail($id);
+        $ticket->id_technicien = $request->id_technicien;
+        $ticket->save();
+
+        \Log::info('Technicien assigné avec succès au ticket ID : ' . $id);
+
+        return redirect()->back()->with('status', 'Technicien assigné avec succès.');
+    }
+
+    
  
 }
 

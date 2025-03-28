@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'mot_de_passe',
         'role', // Ajout du champ "role" pour différencier les types d'utilisateurs
+        'date_inscription',
     ];
 
     /**
