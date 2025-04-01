@@ -35,8 +35,11 @@ jobs:
       - name: 📦 Installer les dépendances PHP
         run: composer install --no-progress --no-suggest --prefer-dist
 
+      - name: ✅ Vérifier l'installation de PHP_CodeSniffer
+        run: composer show | grep "squizlabs/php_codesniffer" || composer global require squizlabs/php_codesniffer
+
       - name: 🔍 Vérifier le formatage du code (Lint)
-        run: vendor/bin/phpcs --standard=PSR12 app/
+        run: ~/.composer/vendor/bin/phpcs --standard=PSR12 app/
 
       - name: 🚀 Lancer les migrations et seeders
         run: php artisan migrate --seed --force
