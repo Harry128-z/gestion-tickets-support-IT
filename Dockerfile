@@ -28,6 +28,9 @@ COPY --from=composer /app /var/www
 # Donner les permissions nécessaires
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+# Définir le répertoire de travail
+WORKDIR /var/www
+
 # Exposer le port 9000 pour PHP-FPM
 EXPOSE 9000
 

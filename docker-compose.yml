@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: gestion-tickets-app
+    working_dir: /var/www
     volumes:
       - ./public:/var/www/public
       - ./storage:/var/www/storage

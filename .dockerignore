@@ -2,7 +2,7 @@ node_modules
 vendor
 .env
 .git
-.gitignore
+.dockerignore
 *.log
 *.tmp
 docker-compose.override.yml
