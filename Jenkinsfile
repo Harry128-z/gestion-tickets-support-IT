@@ -1,41 +1,60 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = "gestion-tickets-app:latest"
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Fetch Code') {
             steps {
-                // Utiliser les identifiants pour cloner le dépôt
-                git branch: 'main', url: 'https://github.com/Harry128-z/gestion-tickets-support-IT.git', credentialsId: 'Github-credentials237'
+                // Récupérer le code depuis le dépôt Git
+                git branch: 'main', url: 'https://github.com/Harry128-z/gestion-tickets-support-IT.git'
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                // Construire le projet, par exemple avec npm ou une autre commande
+                bat 'npm install' // Commande Windows
+                bat 'npm run build' // Exemple pour Node.js
+            }
+        }
+
+        stage('Test Application') {
+            steps {
+                // Lancer les tests
+                bat 'npm run test' // Exemple pour Node.js
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker-compose build'
+                // Construire l'image Docker
+                bat 'docker build -t votre-utilisateur/app:latest .'
             }
         }
 
-        stage('Run Tests') {
+        stage('Push Docker Image') {
             steps {
-                bat 'docker-compose run app php artisan test'
+                withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
+                    // Pousser l'image dans Docker Hub
+                    bat 'docker push votre-utilisateur/app:latest'
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy with Docker Compose') {
             steps {
-                bat 'docker-compose down'
-                bat 'docker-compose up -d'
+                // Déployer l'application
+                bat 'docker-compose down' // Arrêter les conteneurs existants
+                bat 'docker-compose up -d' // Redémarrer avec la nouvelle image
             }
         }
     }
 
     post {
-        always {
-            bat 'docker system prune -f'
+        success {
+            echo 'Pipeline exécuté avec succès.'
+        }
+        failure {
+            echo 'Pipeline échoué. Vérifiez les logs.'
         }
     }
 }

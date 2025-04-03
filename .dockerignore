@@ -1,8 +1,0 @@
-node_modules
-
-.env
-.git
-.dockerignore
-*.log
-*.tmp
-docker-compose.override.yml
