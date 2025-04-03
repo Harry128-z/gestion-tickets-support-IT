@@ -15,27 +15,27 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker-compose build'
+                bat 'docker-compose build'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'docker-compose run app php artisan test'
+                bat 'docker-compose run app php artisan test'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+                bat 'docker-compose down'
+                bat 'docker-compose up -d'
             }
         }
     }
 
     post {
         always {
-            sh 'docker system prune -f'
+            bat 'docker system prune -f'
         }
     }
 }
